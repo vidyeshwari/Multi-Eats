@@ -29,11 +29,11 @@ const useUrl = !!process.env.DATABASE_URL;
   await c.query("UPDATE Restaurants SET photo_url = 'images/r' || restaurant_id || '.jpg' WHERE photo_url IS NULL");
 
   // demo restaurant login (customers sign up on the site; restaurant accounts are only created here / by add-restaurant-user.js)
-  const email = process.env.RESTAURANT_EMAIL || 'restaurant@multieats.test', pw = process.env.RESTAURANT_PASSWORD || 'restaurant123';
+  const email = process.env.RESTAURANT_EMAIL || 'admin@multieats.test', pw = process.env.RESTAURANT_PASSWORD || 'admin123'
   await c.query('SELECT sp_create_platform_admin($1,$2,$3)', ['MultiEats Main Admin', email, await bcrypt.hash(pw, 10)]);
   console.log('Main admin login:', email, '/', pw, '(change it in .env before the demo goes public)');
   // ONE shared restaurant login: it picks a restaurant after login and then only sees that restaurant's panel
-  const pEmail = process.env.PORTAL_EMAIL || 'restaurants@multieats.test', pPw = process.env.PORTAL_PASSWORD || 'Rest@urant#Panel9';
+  const pEmail =process.env.PORTAL_EMAIL || 'restaurant@multieats.test', pPw = process.env.PORTAL_PASSWORD || 'restaurant123'
   await c.query('SELECT sp_create_portal_user($1,$2,$3)', ['MultiEats Restaurant Panel', pEmail, await bcrypt.hash(pPw, 10)]);
   console.log('Restaurant panel login (select restaurant after login):', pEmail, '/', pPw);
   const r = await c.query('SELECT (SELECT COUNT(*) FROM Restaurants) r, (SELECT COUNT(*) FROM MenuItems) m, (SELECT COUNT(*) FROM DeliveryPartners) d');
