@@ -1,0 +1,24 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Login · MultiEats</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="css/style.css"></head><body>
+<div class="card form"><h2 id="h">Welcome back 👋</h2><p class="muted" id="sub">Log in to order from multiple restaurants in one delivery.</p>
+<div id="su" style="display:none"><label>Full name</label><input id="name"><label>Phone</label><input id="phone" type="tel" inputmode="numeric" maxlength="10" autocomplete="tel" placeholder="10 digits, starts with 7, 8 or 9"></div>
+<label>Email</label><input id="email" type="email"><label>Password</label><div class="pwbox"><input id="pw" type="password" autocomplete="current-password"><button type="button" id="eye" class="pwtoggle" aria-label="Show password">Show</button></div><ul class="rules" id="rules" style="display:none"></ul>
+<div id="err"></div><br><button style="width:100%" id="go">Log in</button>
+<p class="muted" style="text-align:center;margin-top:16px"><a href="#" id="tg" style="color:var(--brand);font-weight:600">New here? Create an account</a></p></div>
+<script src="js/config.js"></script><script src="js/common.js"></script><script>
+nav('login'); let signup=false;
+const showRules=()=>{const p=$('#pw').value;$('#rules').innerHTML=PW_RULES.map(r=>`<li class="${r[1](p)?'ok':''}">${r[0]}</li>`).join('')};
+$('#pw').oninput=showRules;$('#eye').onclick=()=>{const h=$('#pw').type==='password';$('#pw').type=h?'text':'password';$('#eye').textContent=h?'Hide':'Show';$('#eye').setAttribute('aria-label',h?'Hide password':'Show password')};$('#phone').oninput=e=>{e.target.value=e.target.value.replace(/\D/g,'').slice(0,10)};
+$('#tg').onclick=e=>{e.preventDefault();signup=!signup;$('#su').style.display=signup?'block':'none';$('#rules').style.display=signup?'block':'none';if(signup)showRules();$('#err').innerHTML='';$('#h').textContent=signup?'Create account':'Welcome back 👋';$('#go').textContent=signup?'Sign up':'Log in';$('#tg').textContent=signup?'Have an account? Log in':'New here? Create an account'};
+$('#go').onclick=async()=>{try{
+ const body={email:$('#email').value.trim(),password:$('#pw').value};
+ if(signup){body.name=$('#name').value.trim();body.phone=$('#phone').value.trim();
+  if(!body.name||!body.email)throw new Error('Name, email and password are required');
+  const bad=phoneProblem(body.phone)||passwordProblem(body.password,{email:body.email,name:body.name});   // invalid phone / weak password: stop here, no account, no login
+  if(bad)throw new Error(bad);
+  await api('/auth/signup',{method:'POST',body});toast('Account created! Logging in…')}
+ else if(!body.email||!body.password)throw new Error('Enter your email and password');
+ const d=await api('/auth/login',{method:'POST',body});store.set('user',{...d.user,token:d.token});
+ location=new URLSearchParams(location.search).get('next')||(d.user.role==='admin'?'admin.html':d.user.role==='restaurant_owner'?'owner.html':'index.html');
+}catch(e){$('#err').innerHTML=`<div class="alert bad">${esc(e.message)}</div>`}};
+</script></body></html>

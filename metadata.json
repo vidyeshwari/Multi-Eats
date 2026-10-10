@@ -1,0 +1,6 @@
+{
+  "name": "MultiEats",
+  "description": "Multi-restaurant single delivery food ordering platform",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
